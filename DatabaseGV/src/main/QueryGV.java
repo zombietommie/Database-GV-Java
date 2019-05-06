@@ -8,6 +8,7 @@ package main;
 import java.awt.print.Printable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.sql.PreparedStatement;
@@ -44,7 +45,27 @@ public class QueryGV {
 	
 
 	// Query Setup
-	
+	/**
+	 * Query 1 Setup
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryOne() throws SQLException {
+		String str = "SELECT first_name, last_name " + 
+				"FROM Person NATURAL JOIN Works  " + 
+				"WHERE end_date IS NOT NULL " + 
+				"ORDER BY last_name ASC";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(str);
+		while(rs.next()) {
+			String[] line = new String[2];
+			line[0] = rs.getString("first_name");
+			line[1] = rs.getString("last_name");
+			al.add(line);
+		}
+		return al;
+	}
 	
 	
 	
@@ -54,7 +75,6 @@ public class QueryGV {
 	
 	/** tester
 	 * Run Query here!!!
-	 * WARNING THESE ARE HARDCODED NEED APP
 	 */
 	public static void main(String[] args) throws SQLException {
 		
@@ -85,8 +105,8 @@ public class QueryGV {
 		 * Loop to run the program 
 		 */
 		while(!quit) {
-			System.out.println("\n\n*****JJT LD Database Java Query Runner*****\n\n");
-			System.out.println("Please enter a query number (13-28) or 0 to QUIT: ");
+			System.out.println("\n\n*****JJT GV Database Java Query Runner*****\n\n");
+			System.out.println("Please enter a query number (1-12) or 0 to QUIT: ");
 			// give user choice option
 			try {
 				int choice = scanner.nextInt();
@@ -94,11 +114,11 @@ public class QueryGV {
 				if (choice > 0 && choice > 13) {
 					System.out.println("ERROR>>>>> You have entered the value is not in range!");
 				}
-				else if (choice == ) {
-					
-				}
-				else if (choice == ) {
-					
+				else if (choice == 1) {
+					ArrayList<String[]> str = sqObj.queryOne();
+					for (String[] line : str) {
+						System.out.printf("first_name\tlast_name\n%s\t\t%s\n\n", line[0], line[1]);
+					}
 				}
 				// This else is to check if use want to QUIT
 				else if (choice == 0) {
