@@ -43,56 +43,9 @@ public class QueryGV {
 	// END OF connection constructors
 	
 
+	// Query Setup
 	
-	/**
-	 * Query 13 setup
-	 * @param per_id
-	 * @return 
-	 * @throws SQLException
-	 */
-	public ArrayList<String[]> workerJob(String per_id) throws SQLException {
-		String str = "SELECT first_name, last_name, job_title " + 
-				"FROM Person NATURAL JOIN works " + 
-				"WHERE per_id = ? ";
-		ArrayList<String[]> al = new ArrayList<String[]>();
-		PreparedStatement pStmt = conn.prepareStatement(str);
-		pStmt.setString(1, per_id);
-		ResultSet rs = pStmt.executeQuery();
-		while(rs.next()) {
-			String[] line = new String[3];
-			line[0] = rs.getString("first_name");
-			line[1] = rs.getString("last_name");
-			line[2] = rs.getString("job_title");
-			al.add(line);
-		}
-		return al;
-	}
 	
-	/**
-	 * Query 14 setup
-	 * @param pos_code
-	 * @return 
-	 * @throws SQLException
-	 */
-	public ArrayList<String[]> onceHeldPosition(String pos_code) throws SQLException {
-		String str = "SELECT per_id, first_name, job_title, start_date, end_date " + 
-				"FROM person natural join works " + 
-				"WHERE pos_code = ? ";
-		ArrayList<String[]> al = new ArrayList<String[]>();
-		PreparedStatement pStmt = conn.prepareStatement(str);
-		pStmt.setString(1, pos_code);
-		ResultSet rs = pStmt.executeQuery();
-		while (rs.next()) {
-			String[] line = new String[5];
-			line[0] = rs.getString("per_id");
-			line[1] = rs.getString("first_name");
-			line[2] = rs.getString("job_title");
-			line[3] = rs.getString("start_date");
-			line[4] = rs.getString("end_date");
-			al.add(line);
-		}
-		return al;
-	}
 	
 	
 	
@@ -138,33 +91,14 @@ public class QueryGV {
 			try {
 				int choice = scanner.nextInt();
 				
-				if (choice > 0 && choice < 13) {
-					System.out.println("ERROR>>>>> You have entered the value below the given range!");
+				if (choice > 0 && choice > 13) {
+					System.out.println("ERROR>>>>> You have entered the value is not in range!");
 				}
-				else if (choice == 13) {
-					// Query 13 runner
-					System.out.println("Running Query 13:");
-					System.out.println("Given a person’s identifier, find all the jobs this person is currently holding and worked\n" + 
-							"in the past.");
-					System.out.print("Enter a person's ID: ");
-					String ans = getAnswerString();
-					ArrayList<String[]> str = sqObj.workerJob(ans);
-					for (String[] line : str) {
-						System.out.printf("first_name\tlast_name\tjob_title\n%s\t\t%s\t\t%s\n\n", line[0], line[1], line[2]);
-					}
+				else if (choice == ) {
+					
 				}
-				else if (choice == 14) {
-					// Query 14 runner 
-					System.out.println("Running Query 14:");
-					System.out.println("In a local or national crisis, we need to find all the people who once held a position of the given pos_code. List\n" + 
-							"per_id, name, job title and the years the person worked in (starting year and ending year).");
-					System.out.println("Enter a position code: ");
-					String ans = getAnswerString();
-					ArrayList<String[]> str2 = sqObj.onceHeldPosition(ans);
-					for (String[] line : str2) {
-						System.out.printf("pos_code\tfirst_name\tjob_title\t\tstart_date\t\tend_date\n%s\t\t%s\t\t%s\t%s\t%s\n\n ", 
-								line[0], line[1], line[2], line[3], line[4]);
-					}
+				else if (choice == ) {
+					
 				}
 				// This else is to check if use want to QUIT
 				else if (choice == 0) {
