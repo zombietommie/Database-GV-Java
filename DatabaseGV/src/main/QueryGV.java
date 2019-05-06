@@ -5,6 +5,7 @@
  */
 
 package main;
+
 import java.awt.print.Printable;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -18,47 +19,40 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.sql.Date;
 
-
 public class QueryGV {
 
-	Connection conn; 
-	final String host = "dbsvcs.cs.uno.edu"; 
+	Connection conn;
+	final String host = "dbsvcs.cs.uno.edu";
 	final int port = 1521;
 	final String sID = "orcl";
 
 	// Three database connection link constructors
-	public QueryGV(	String host, 
-			int port, 
-			String sID, 
-			String username, 
-			String passwd) throws SQLException { 
-				conn = new DatabaseConnection(host, port, sID).getDatabaseConnection(username, passwd); 
-			}
-	public QueryGV(String username, String passwd) throws SQLException { 
-		this.conn = new DatabaseConnection(host, port, sID).getDatabaseConnection(username, passwd); 
+	public QueryGV(String host, int port, String sID, String username, String passwd) throws SQLException {
+		conn = new DatabaseConnection(host, port, sID).getDatabaseConnection(username, passwd);
 	}
 
-	public QueryGV(Connection conn) throws SQLException { 
-		this.conn = conn; 
+	public QueryGV(String username, String passwd) throws SQLException {
+		this.conn = new DatabaseConnection(host, port, sID).getDatabaseConnection(username, passwd);
+	}
+
+	public QueryGV(Connection conn) throws SQLException {
+		this.conn = conn;
 	}
 	// END OF connection constructors
-	
 
 	// Query Setup
 	/**
 	 * Query 1 Setup
+	 * 
 	 * @return
 	 * @throws SQLException
 	 */
 	public ArrayList<String[]> queryOne() throws SQLException {
-		String str = "SELECT first_name, last_name " + 
-				"FROM Person NATURAL JOIN Works  " + 
-				"WHERE end_date IS NOT NULL " + 
-				"ORDER BY last_name ASC";
+		String str = "SELECT first_name,last_name " + "FROM Person NATURAL JOIN Job " + "ORDER BY last_name ASC";
 		ArrayList<String[]> al = new ArrayList<String[]>();
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(str);
-		while(rs.next()) {
+		while (rs.next()) {
 			String[] line = new String[2];
 			line[0] = rs.getString("first_name");
 			line[1] = rs.getString("last_name");
@@ -66,58 +60,152 @@ public class QueryGV {
 		}
 		return al;
 	}
-	
-	
-	
-	
-	
-	
-	
-	/** tester
-	 * Run Query here!!!
+
+	/**
+	 * Query 2 setup
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryTwo() throws SQLException {
+		String str = "SELECT first_name, last_name, pay_rate " + "FROM Person NATURAL JOIN Job "
+				+ "WHERE pay_type='salary' " + "ORDER BY pay_rate DESC";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(str);
+		while (rs.next()) {
+			String[] line = new String[3];
+			line[0] = rs.getString("first_name");
+			line[1] = rs.getString("last_name");
+			line[2] = rs.getString("pay_rate");
+			al.add(line);
+		}
+		return al;
+	}
+
+	/**
+	 * Query 3 setup NOT READY!!!!
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryThree() throws SQLException {
+		String str = "WITH salary AS (\n" + "SELECT  fac_id, fac_name, AVG (pay_rate) AS avg_pay "
+				+ "FROM Job NATURAL JOIN Factory " + "WHERE pay_type = 'salary' " + "GROUP BY fac_id,fac_name),\n "
+				+ "hours AS ( " + "SELECT fac_id, fac_name, AVG (pay_rate*1920) AS avg_pay "
+				+ "FROM Job NATURAL JOIN Factory " + "WHERE pay_type = 'wage' " + "GROUP BY fac_id,fac_name " + "), "
+				+ "labor_cost AS ( " + "SELECT * FROM salary " + "UNION " + "SELECT * FROM hours " + ") "
+				+ "SELECT fac_id, fac_name, avg_pay " + "FROM labor_cost " + "GROUP BY fac_id, fac_name, avg_pay "
+				+ "ORDER BY avg_pay DESC";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(str);
+		while (rs.next()) {
+			String[] line = new String[3];
+			line[0] = rs.getString("fac_id");
+			line[1] = rs.getString("fac_name");
+			line[2] = Float.toString(rs.getFloat("avg_pay"));
+			al.add(line);
+		}
+		return al;
+	}
+
+	/**
+	 * Query 4 setup
+	 * 
+	 * @param pos_code
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryFour(String pos_code) throws SQLException {
+		String str = "SELECT pos_code, sk_code " + "FROM Requires " + "WHERE pos_code = ? "
+				+ "GROUP BY pos_code, sk_code ";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		PreparedStatement pStmt = conn.prepareStatement(str);
+		pStmt.setString(1, pos_code);
+		ResultSet rs = pStmt.executeQuery();
+		while (rs.next()) {
+			String[] line = new String[2];
+			line[0] = rs.getString("pos_code");
+			line[1] = rs.getString("sk_code");
+			al.add(line);
+		}
+		return al;
+	}
+
+	/**
+	 * tester Run Query here!!!
 	 */
 	public static void main(String[] args) throws SQLException {
-		
+
 		// Start of the connection to database by asking for username and password
 		if (args.length == 1) {
-			System.out.println("usage: java SampleQuery db-IP dp-SID"); 
+			System.out.println("usage: java SampleQuery db-IP dp-SID");
 			System.exit(1);
-		} 
-		DatabaseConnection dbc; 
+		}
+		DatabaseConnection dbc;
 		if (args.length == 0)
-			dbc = new DatabaseConnection("dbsvcs.cs.uno.edu", 1521, "orcl"); 
-		else 
-			dbc = new DatabaseConnection(args[0], 1521, args[1]); 
+			dbc = new DatabaseConnection("dbsvcs.cs.uno.edu", 1521, "orcl");
+		else
+			dbc = new DatabaseConnection(args[0], 1521, args[1]);
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("User Name: ");
 		String username = scanner.nextLine();
 		System.out.println("passcode: ");
-		String dbpassword = scanner.nextLine(); 
-		Connection conn = dbc.getDatabaseConnection(username, dbpassword); 
+		String dbpassword = scanner.nextLine();
+		Connection conn = dbc.getDatabaseConnection(username, dbpassword);
 		QueryGV sqObj = new QueryGV(conn);
 		// END OF database connection process
-		
+
 		// Variables in MAIN
 		Boolean quit = false;
-		
-		
+
 		/**
-		 * Loop to run the program 
+		 * Loop to run the program
 		 */
-		while(!quit) {
+		while (!quit) {
 			System.out.println("\n\n*****JJT GV Database Java Query Runner*****\n\n");
 			System.out.println("Please enter a query number (1-12) or 0 to QUIT: ");
 			// give user choice option
 			try {
 				int choice = scanner.nextInt();
-				
+
 				if (choice > 0 && choice > 13) {
-					System.out.println("ERROR>>>>> You have entered the value is not in range!");
-				}
-				else if (choice == 1) {
+					System.out.println("ERROR>>>>> You have entered the value that is not for GV queries!");
+				} else if (choice == 1) {
+					System.out.println("Running Query 1");
+					System.out.println("List the workers by name in the alphabetical order of last names");
+					System.out.println("first_name\t\tlast_name");
 					ArrayList<String[]> str = sqObj.queryOne();
 					for (String[] line : str) {
-						System.out.printf("first_name\tlast_name\n%s\t\t%s\n\n", line[0], line[1]);
+						System.out.printf("%s\t\t%s\n\n", line[0], line[1]);
+					}
+				} else if (choice == 2) {
+					System.out.println("Running Query 2");
+					System.out.println("List the staff (salary workers) by salary in descending order");
+					System.out.println("frsit_name\t\tlast_name\t\tpay_rate");
+					ArrayList<String[]> str = sqObj.queryTwo();
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\t\t%s\n\n", line[0], line[1], line[2]);
+					}
+				} else if (choice == 3) {
+					System.out.println("Running Query 3");
+					System.out.println(
+							"List the average annual pay (the salary or wage rates multiplying by 1920 hours) of each factory in descending order");
+					System.out.println("fac_id\t\tfac_name\t\t\tavg_pay");
+					ArrayList<String[]> str = sqObj.queryThree();
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\t\t\t%s\n\n", line[0], line[1], line[2]);
+					}
+				} else if (choice == 4) {
+					System.out.println("Running Query 4");
+					System.out.println("List the required skills of a given pos_code in a readable format.");
+					System.out.println("Enter a position code: ");
+					String ans = getAnswerString();
+					System.out.println("pos_code\t\tsk_code");
+					ArrayList<String[]> str = sqObj.queryFour(ans);
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\t\t", line[0], line[1]);
 					}
 				}
 				// This else is to check if use want to QUIT
@@ -125,7 +213,7 @@ public class QueryGV {
 					System.out.println("Quiting program...");
 					quit = true;
 				}
-				
+
 			} catch (InputMismatchException e) {
 				System.out.println("ERROR>>>> the value must be an integer\n");
 				e.printStackTrace();
@@ -135,25 +223,25 @@ public class QueryGV {
 		// Closes the Scanner
 		scanner.close();
 	}
-	
+
 	/**
 	 * 
 	 * @return answer: which is the user input to the query as String
 	 */
 	public static String getAnswerString() {
-		// Create new Scanner 
+		// Create new Scanner
 		Scanner sc = new Scanner(System.in);
 		String answer = sc.nextLine();
 //		sc.close();
 		return answer;
 	}
-	
+
 	/**
 	 * 
 	 * @return answer: which is the user input to the query as integer
 	 */
 	public static int getAnswerInt() {
-		// Create new Scanner 
+		// Create new Scanner
 		Scanner sc = new Scanner(System.in);
 		int answer = sc.nextInt();
 //		sc.close();
