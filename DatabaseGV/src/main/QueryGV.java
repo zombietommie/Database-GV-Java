@@ -281,6 +281,171 @@ public class QueryGV {
 		}
 		return al;
 	}
+	
+	/**
+	 * Query 10 setup
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryTen() throws SQLException {
+		String str = "SELECT cus_id, SUM(sale_amount)\n" + 
+				"FROM contract \n" + 
+				"WHERE con_date BETWEEN '01-Jan-2018' AND '31-Dec-2018'\n" + 
+				"GROUP BY cus_ID, sale_amount \n";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(str);
+		while (rs.next()) {
+			String[] line = new String[2];
+			line[0] = rs.getString("cus_id");
+			line[1] = Float.toString(rs.getFloat("SUM(sale_amount)"));
+			al.add(line);
+		}
+		return al;
+	}
+	
+	/**
+	 * Query 11 setup
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryEleven() throws SQLException {
+		String str = "SELECT DISTINCT\n" + 
+				"    \"A1\".\"M_CODE\"     \"M_CODE\",\n" + 
+				"    \"A1\".\"M_NAME\"     \"M_NAME\",\n" + 
+				"    \"A1\".\"QUANTITY\"   \"QUANTITY\"\n" + 
+				"FROM\n" + 
+				"    (\n" + 
+				"        SELECT\n" + 
+				"            \"from$_subquery$_005\".\"M_CODE\"     \"M_CODE\",\n" + 
+				"            \"from$_subquery$_005\".\"M_NAME\"     \"M_NAME\",\n" + 
+				"            \"from$_subquery$_005\".\"QUANTITY\"   \"QUANTITY\",\n" + 
+				"            \"from$_subquery$_005\".\"PAY_DATE\"   \"PAY_DATE\"\n" + 
+				"        FROM\n" + 
+				"            (\n" + 
+				"                SELECT\n" + 
+				"                    \"PURCHASELINE\".\"M_CODE\"            \"M_CODE\",\n" + 
+				"                    \"PURCHASELINE\".\"QUANTITY\"          \"QUANTITY\",\n" + 
+				"                    \"PURCHASELINE\".\"PURCHASE_NUM\"      \"PURCHASE_NUM\",\n" + 
+				"                    \"from$_subquery$_003\".\"M_NAME\"     \"M_NAME\",\n" + 
+				"                    \"from$_subquery$_003\".\"PAY_DATE\"   \"PAY_DATE\"\n" + 
+				"                FROM\n" + 
+				"                    (\n" + 
+				"                        SELECT\n" + 
+				"                            \"MATERIAL\".\"M_CODE\"         \"M_CODE\",\n" + 
+				"                            \"MATERIAL\".\"M_NAME\"         \"M_NAME\",\n" + 
+				"                            \"MATERIAL\".\"QUANTITY\"       \"QUANTITY\",\n" + 
+				"                            \"PURCHASE\".\"PURCHASE_NUM\"   \"PURCHASE_NUM\",\n" + 
+				"                            \"PURCHASE\".\"PAY_DATE\"       \"PAY_DATE\"\n" + 
+				"                        FROM\n" + 
+				"                            \"JSLE1\".\"MATERIAL\"   \"MATERIAL\",\n" + 
+				"                            \"JSLE1\".\"PURCHASE\"   \"PURCHASE\"\n" + 
+				"                    ) \"from$_subquery$_003\",\n" + 
+				"                    \"JSLE1\".\"PURCHASELINE\"                                                                                                                                                                                                                 \"PURCHASELINE\"\n" + 
+				"                WHERE\n" + 
+				"                    \"from$_subquery$_003\".\"PURCHASE_NUM\" = \"PURCHASELINE\".\"PURCHASE_NUM\"\n" + 
+				"                    AND \"from$_subquery$_003\".\"QUANTITY\" = \"PURCHASELINE\".\"QUANTITY\"\n" + 
+				"                    AND \"from$_subquery$_003\".\"M_CODE\" = \"PURCHASELINE\".\"M_CODE\"\n" + 
+				"            ) \"from$_subquery$_005\"\n" + 
+				"        WHERE\n" + 
+				"            \"from$_subquery$_005\".\"PAY_DATE\" >= '1-Oct-2018'\n" + 
+				"            AND \"from$_subquery$_005\".\"PAY_DATE\" <= '31-Dec-2018'\n" + 
+				"    ) \"A1\"\n" + 
+				"WHERE\n" + 
+				"    \"A1\".\"QUANTITY\" = (\n" + 
+				"        SELECT\n" + 
+				"            \"A2\".\"MAXQUANTITY\" \"MAXQUANTITY\"\n" + 
+				"        FROM\n" + 
+				"            (\n" + 
+				"                SELECT\n" + 
+				"                    MAX(\"A3\".\"QUANTITY\") \"MAXQUANTITY\"\n" + 
+				"                FROM\n" + 
+				"                    (\n" + 
+				"                        SELECT\n" + 
+				"                            \"from$_subquery$_005\".\"M_CODE\"     \"M_CODE\",\n" + 
+				"                            \"from$_subquery$_005\".\"M_NAME\"     \"M_NAME\",\n" + 
+				"                            \"from$_subquery$_005\".\"QUANTITY\"   \"QUANTITY\",\n" + 
+				"                            \"from$_subquery$_005\".\"PAY_DATE\"   \"PAY_DATE\"\n" + 
+				"                        FROM\n" + 
+				"                            (\n" + 
+				"                                SELECT\n" + 
+				"                                    \"PURCHASELINE\".\"M_CODE\"            \"M_CODE\",\n" + 
+				"                                    \"PURCHASELINE\".\"QUANTITY\"          \"QUANTITY\",\n" + 
+				"                                    \"PURCHASELINE\".\"PURCHASE_NUM\"      \"PURCHASE_NUM\",\n" + 
+				"                                    \"from$_subquery$_003\".\"M_NAME\"     \"M_NAME\",\n" + 
+				"                                    \"from$_subquery$_003\".\"PAY_DATE\"   \"PAY_DATE\"\n" + 
+				"                                FROM\n" + 
+				"                                    (\n" + 
+				"                                        SELECT\n" + 
+				"                                            \"MATERIAL\".\"M_CODE\"         \"M_CODE\",\n" + 
+				"                                            \"MATERIAL\".\"M_NAME\"         \"M_NAME\",\n" + 
+				"                                            \"MATERIAL\".\"QUANTITY\"       \"QUANTITY\",\n" + 
+				"                                            \"PURCHASE\".\"PURCHASE_NUM\"   \"PURCHASE_NUM\",\n" + 
+				"                                            \"PURCHASE\".\"PAY_DATE\"       \"PAY_DATE\"\n" + 
+				"                                        FROM\n" + 
+				"                                            \"JSLE1\".\"MATERIAL\"   \"MATERIAL\",\n" + 
+				"                                            \"JSLE1\".\"PURCHASE\"   \"PURCHASE\"\n" + 
+				"                                    ) \"from$_subquery$_003\",\n" + 
+				"                                    \"JSLE1\".\"PURCHASELINE\"                                                                                                                                                                                                                 \"PURCHASELINE\"\n" + 
+				"                                WHERE\n" + 
+				"                                    \"from$_subquery$_003\".\"PURCHASE_NUM\" = \"PURCHASELINE\".\"PURCHASE_NUM\"\n" + 
+				"                                    AND \"from$_subquery$_003\".\"QUANTITY\" = \"PURCHASELINE\".\"QUANTITY\"\n" + 
+				"                                    AND \"from$_subquery$_003\".\"M_CODE\" = \"PURCHASELINE\".\"M_CODE\"\n" + 
+				"                            ) \"from$_subquery$_005\"\n" + 
+				"                        WHERE\n" + 
+				"                            \"from$_subquery$_005\".\"PAY_DATE\" >= '1-Oct-2018'\n" + 
+				"                            AND \"from$_subquery$_005\".\"PAY_DATE\" <= '31-Dec-2018'\n" + 
+				"                    ) \"A3\"\n" + 
+				"            ) \"A2\"\n" + 
+				"    )";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(str);
+		while (rs.next()) {
+			String[] line = new String[3];
+			line[0] = rs.getString("m_code");
+			line[1] = rs.getString("m_name");
+			line[2] = Integer.toString(rs.getInt("quantity"));
+			al.add(line);
+		}
+		return al;
+	}
+	
+	public ArrayList<String[]> queryTwelve() throws SQLException {
+		String str = "SELECT\n" + 
+				"    \"A1\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"    \"A1\".\"FAC_NAME\"   \"FAC_NAME\",\n" + 
+				"    MAX(\"A1\".\"QUANTITY\") \"MAX(QUANTITY)\"\n" + 
+				"FROM\n" + 
+				"    (\n" + 
+				"        SELECT\n" + 
+				"            \"A2\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"            \"A3\".\"P_CODE\"     \"P_CODE\",\n" + 
+				"            \"A3\".\"QUANTITY\"   \"QUANTITY\",\n" + 
+				"            \"A2\".\"FAC_NAME\"   \"FAC_NAME\"\n" + 
+				"        FROM\n" + 
+				"            \"JSLE1\".\"MAKES\"     \"A3\",\n" + 
+				"            \"JSLE1\".\"FACTORY\"   \"A2\"\n" + 
+				"        WHERE\n" + 
+				"            \"A3\".\"FAC_ID\" = \"A2\".\"FAC_ID\"\n" + 
+				"    ) \"A1\"\n" + 
+				"GROUP BY\n" + 
+				"    \"A1\".\"FAC_ID\",\n" + 
+				"    \"A1\".\"FAC_NAME\",\n" + 
+				"    \"A1\".\"QUANTITY\"\n" + 
+				"";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(str);
+		while (rs.next()) {
+			String[] line = new String[3];
+			line[0] = rs.getString("fac_id");
+			line[1] = rs.getString("fac_name");
+			line[2] = Integer.toString(rs.getInt("MAX(quantity)"));
+			al.add(line);
+		}
+		return al;
+	}
 
 	/**
 	 * tester Run Query here!!!
@@ -384,13 +549,36 @@ public class QueryGV {
 					System.out.println("This query is for AZ, select another.");
 				} else if (choice == 9) {
 					System.out.println("This query is for AZ, select another.");
+				} else if (choice == 10) {
+					System.out.println("Running Query 10");
+					System.out.println("List the total sales in dollar to each customer of GV in 2018.");
+					System.out.println("cus_id\t\tSUM(sale_amount)");
+					ArrayList<String[]> str = sqObj.queryTen();
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\n\n", line[0],line[1]);
+					}
+				} else if (choice == 11) {
+					System.out.println("Running Query 11");
+					System.out.println("Show m_code, m_name of the material(s) that GV purchased the most (measured by quantity) in the fourth quarter of 2018.");
+					System.out.println("m_code\t\tm_name\t\tquantity");
+					ArrayList<String[]> str = sqObj.queryEleven();
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\t\t%s\n\n", line[0],line[1],line[2]);
+					}
+				} else if (choice == 12) {
+					System.out.println("Running Query 12");
+					System.out.println("Show the factory name that made the most total quantity of the product that was sold the most in 2018. WHERE product amount was sold the most in 2018, return the factory name that made that product");
+					System.out.println("fac_id\t\tfac_name\t\tMAX(quantity)");
+					ArrayList<String[]> str = sqObj.queryTwelve();
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\t\t%s\n\n", line[0],line[1],line[2]);
+					}
 				}
 				// This else is to check if use want to QUIT
 				else if (choice == 0) {
 					System.out.println("Quiting program...");
 					quit = true;
 				}
-
 			} catch (InputMismatchException e) {
 				System.out.println("ERROR>>>> the value must be an integer\n");
 				e.printStackTrace();
