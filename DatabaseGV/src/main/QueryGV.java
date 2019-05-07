@@ -84,19 +84,86 @@ public class QueryGV {
 	}
 
 	/**
-	 * Query 3 setup NOT READY!!!!
+	 * Query 3 setup 
 	 * 
 	 * @return
 	 * @throws SQLException
 	 */
 	public ArrayList<String[]> queryThree() throws SQLException {
-		String str = "WITH salary AS (\n" + "SELECT  fac_id, fac_name, AVG (pay_rate) AS avg_pay "
-				+ "FROM Job NATURAL JOIN Factory " + "WHERE pay_type = 'salary' " + "GROUP BY fac_id,fac_name),\n "
-				+ "hours AS ( " + "SELECT fac_id, fac_name, AVG (pay_rate*1920) AS avg_pay "
-				+ "FROM Job NATURAL JOIN Factory " + "WHERE pay_type = 'wage' " + "GROUP BY fac_id,fac_name " + "), "
-				+ "labor_cost AS ( " + "SELECT * FROM salary " + "UNION " + "SELECT * FROM hours " + ") "
-				+ "SELECT fac_id, fac_name, avg_pay " + "FROM labor_cost " + "GROUP BY fac_id, fac_name, avg_pay "
-				+ "ORDER BY avg_pay DESC";
+		String str = "SELECT\n" + 
+				"    \"A1\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"    \"A1\".\"FAC_NAME\"   \"FAC_NAME\",\n" + 
+				"    \"A1\".\"AVG_PAY\"    \"AVG_PAY\"\n" + 
+				"FROM\n" + 
+				"    (\n" + 
+				"        ( SELECT\n" + 
+				"            \"A4\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"            \"A4\".\"FAC_NAME\"   \"FAC_NAME\",\n" + 
+				"            \"A4\".\"AVG_PAY\"    \"AVG_PAY\"\n" + 
+				"        FROM\n" + 
+				"            (\n" + 
+				"                SELECT\n" + 
+				"                    \"A5\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"                    \"A5\".\"FAC_NAME\"   \"FAC_NAME\",\n" + 
+				"                    AVG(\"A5\".\"PAY_RATE\") \"AVG_PAY\"\n" + 
+				"                FROM\n" + 
+				"                    (\n" + 
+				"                        SELECT\n" + 
+				"                            \"A6\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"                            \"A7\".\"PAY_RATE\"   \"PAY_RATE\",\n" + 
+				"                            \"A7\".\"PAY_TYPE\"   \"PAY_TYPE\",\n" + 
+				"                            \"A6\".\"FAC_NAME\"   \"FAC_NAME\"\n" + 
+				"                        FROM\n" + 
+				"                            \"JSLE1\".\"JOB\"       \"A7\",\n" + 
+				"                            \"JSLE1\".\"FACTORY\"   \"A6\"\n" + 
+				"                        WHERE\n" + 
+				"                            \"A7\".\"FAC_ID\" = \"A6\".\"FAC_ID\"\n" + 
+				"                    ) \"A5\"\n" + 
+				"                WHERE\n" + 
+				"                    \"A5\".\"PAY_TYPE\" = 'salary'\n" + 
+				"                GROUP BY\n" + 
+				"                    \"A5\".\"FAC_ID\",\n" + 
+				"                    \"A5\".\"FAC_NAME\"\n" + 
+				"            ) \"A4\"\n" + 
+				"        )\n" + 
+				"        UNION\n" + 
+				"        ( SELECT\n" + 
+				"            \"A3\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"            \"A3\".\"FAC_NAME\"   \"FAC_NAME\",\n" + 
+				"            \"A3\".\"AVG_PAY\"    \"AVG_PAY\"\n" + 
+				"        FROM\n" + 
+				"            (\n" + 
+				"                SELECT\n" + 
+				"                    \"A8\".\"FAC_ID\"     \"FAC_ID\",\n" + 
+				"                    \"A8\".\"FAC_NAME\"   \"FAC_NAME\",\n" + 
+				"                    AVG(\"A8\".\"PAY_RATE\" * 1920) \"AVG_PAY\"\n" + 
+				"                FROM\n" + 
+				"                    (\n" + 
+				"                        SELECT\n" + 
+				"                            \"A9\".\"FAC_ID\"      \"FAC_ID\",\n" + 
+				"                            \"A10\".\"PAY_RATE\"   \"PAY_RATE\",\n" + 
+				"                            \"A10\".\"PAY_TYPE\"   \"PAY_TYPE\",\n" + 
+				"                            \"A9\".\"FAC_NAME\"    \"FAC_NAME\"\n" + 
+				"                        FROM\n" + 
+				"                            \"JSLE1\".\"JOB\"       \"A10\",\n" + 
+				"                            \"JSLE1\".\"FACTORY\"   \"A9\"\n" + 
+				"                        WHERE\n" + 
+				"                            \"A10\".\"FAC_ID\" = \"A9\".\"FAC_ID\"\n" + 
+				"                    ) \"A8\"\n" + 
+				"                WHERE\n" + 
+				"                    \"A8\".\"PAY_TYPE\" = 'wage'\n" + 
+				"                GROUP BY\n" + 
+				"                    \"A8\".\"FAC_ID\",\n" + 
+				"                    \"A8\".\"FAC_NAME\"\n" + 
+				"            ) \"A3\"\n" + 
+				"        )\n" + 
+				"    ) \"A1\"\n" + 
+				"GROUP BY\n" + 
+				"    \"A1\".\"FAC_ID\",\n" + 
+				"    \"A1\".\"FAC_NAME\",\n" + 
+				"    \"A1\".\"AVG_PAY\"\n" + 
+				"ORDER BY\n" + 
+				"    \"A1\".\"AVG_PAY\" DESC";
 		ArrayList<String[]> al = new ArrayList<String[]>();
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(str);
@@ -128,6 +195,88 @@ public class QueryGV {
 			String[] line = new String[2];
 			line[0] = rs.getString("pos_code");
 			line[1] = rs.getString("sk_code");
+			al.add(line);
+		}
+		return al;
+	}
+	
+	/**
+	 * Query 5 setup
+	 * @param per_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> queryFive(String per_id) throws SQLException {
+		String str = "SELECT title, sk_code " + 
+				"FROM Has_skill NATURAL JOIN Skill " + 
+				"WHERE per_id = ?";
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		PreparedStatement pStmt = conn.prepareStatement(str);
+		pStmt.setString(1, per_id);
+		ResultSet rs = pStmt.executeQuery();
+		while (rs.next()) {
+			String[] line = new String[2];
+			line[0] = rs.getString("title");
+			line[1] = rs.getString("sk_code");
+			al.add(line);
+		}
+		return al;
+	}
+	
+	/**
+	 * Query 6 setup
+	 * @param pos_code
+	 * @param per_id
+	 * @return
+	 * @throws SQLException
+	 */
+	public ArrayList<String[]> querySix(String pos_code, String per_id) throws SQLException {
+		String str = "( SELECT\n" + 
+				"    \"A3\".\"SK_CODE\"   \"SK_CODE\",\n" + 
+				"    \"A3\".\"TITLE\"     \"TITLE\"\n" + 
+				"FROM\n" + 
+				"    (\n" + 
+				"        SELECT\n" + 
+				"            \"A4\".\"SK_CODE\"    \"SK_CODE\",\n" + 
+				"            \"A5\".\"TITLE\"      \"TITLE\",\n" + 
+				"            \"A4\".\"POS_CODE\"   \"POS_CODE\"\n" + 
+				"        FROM\n" + 
+				"            \"JSLE1\".\"SKILL\"      \"A5\",\n" + 
+				"            \"JSLE1\".\"REQUIRES\"   \"A4\"\n" + 
+				"        WHERE\n" + 
+				"            \"A5\".\"SK_CODE\" = \"A4\".\"SK_CODE\"\n" + 
+				"    ) \"A3\"\n" + 
+				"WHERE\n" + 
+				"    \"A3\".\"POS_CODE\" = ?\n" + 
+				")\n" + 
+				"MINUS\n" + 
+				"( SELECT\n" + 
+				"    \"A2\".\"SK_CODE\"   \"SK_CODE\",\n" + 
+				"    \"A2\".\"TITLE\"     \"TITLE\"\n" + 
+				"FROM\n" + 
+				"    (\n" + 
+				"        SELECT\n" + 
+				"            \"A6\".\"SK_CODE\"   \"SK_CODE\",\n" + 
+				"            \"A7\".\"PER_ID\"    \"PER_ID\",\n" + 
+				"            \"A6\".\"TITLE\"     \"TITLE\"\n" + 
+				"        FROM\n" + 
+				"            \"JSLE1\".\"HAS_SKILL\"   \"A7\",\n" + 
+				"            \"JSLE1\".\"SKILL\"       \"A6\"\n" + 
+				"        WHERE\n" + 
+				"            \"A7\".\"SK_CODE\" = \"A6\".\"SK_CODE\"\n" + 
+				"    ) \"A2\"\n" + 
+				"WHERE\n" + 
+				"    \"A2\".\"PER_ID\" = ?\n" + 
+				")" ;
+		ArrayList<String[]> al = new ArrayList<String[]>();
+		PreparedStatement pStmt = conn.prepareStatement(str);
+		pStmt.setString(1, pos_code);
+		pStmt.setString(2, per_id);
+		ResultSet rs = pStmt.executeQuery();
+		while (rs.next()) {
+			String[] line = new String[2];
+			line[0] = rs.getString("sk_code");
+			line[1] = rs.getString("title");
 			al.add(line);
 		}
 		return al;
@@ -205,8 +354,36 @@ public class QueryGV {
 					System.out.println("pos_code\t\tsk_code");
 					ArrayList<String[]> str = sqObj.queryFour(ans);
 					for (String[] line : str) {
-						System.out.printf("%s\t\t%s\t\t", line[0], line[1]);
+						System.out.printf("%s\t\t\t%s\t\t", line[0], line[1]);
 					}
+				} else if (choice == 5) {
+					System.out.println("Running Query 5");
+					System.out.println("Given a person’s identifier, list this person’s skills in a readable format");
+					System.out.println("Enter a person ID: ");
+					String ans = getAnswerString();
+					System.out.println("title\t\tsk_code");
+					ArrayList<String[]> str = sqObj.queryFive(ans);
+					for (String[] line : str) {
+						System.out.printf("%s\t%s\n\n",line[0], line[1]);
+					}
+				} else if (choice == 6) {
+					System.out.println("Running Query 6");
+					System.out.println("Given a person’s identifier, list a person’s missing skills for a specific pos_code in a readable format.");
+					System.out.println("Enter a position code: ");
+					String ans1 = getAnswerString();
+					System.out.println("Enter a persion ID: ");
+					String ans2 = getAnswerString();
+					System.out.println("sk_code\t\ttitle");
+					ArrayList<String[]> str = sqObj.querySix(ans1, ans2);
+					for (String[] line : str) {
+						System.out.printf("%s\t\t%s\n\n", line[0], line[1]);
+					}
+				} else if (choice == 7) {
+					System.out.println("This query is for AZ, select another.");
+				} else if (choice == 8) {
+					System.out.println("This query is for AZ, select another.");
+				} else if (choice == 9) {
+					System.out.println("This query is for AZ, select another.");
 				}
 				// This else is to check if use want to QUIT
 				else if (choice == 0) {
